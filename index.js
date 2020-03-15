@@ -4,13 +4,30 @@ const StringDecoder = require('string_decoder').StringDecoder;
 
 const port = 5000;
 
+//creating the route
+let routerSpecific = {};
+
+routerSpecific.sample = function (data, callback){
+    //responding to the query
+    callback(201, {"route": "simple", "author" : "silanka"})
+}
+
+routerSpecific.notFound = function (data, callback){
+    //404 not found response
+    callback(404)
+}
+
+const router = {
+    'sample' : routerSpecific.sample
+}
+
+
 const server = http.createServer(function(req, res){
     //parsing the request url
     const parsedUrl = url.parse(req.url, true);
 
     //getting the request path
-    const path = parsedUrl.pathname;
-    const trimmedPath = path.replace(/^\/+|\/+$/g, '');
+    const trimmedPath = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
 
     //getting the request method
     const method = req.method.toUpperCase();
@@ -22,23 +39,44 @@ const server = http.createServer(function(req, res){
     const reqHeaders = req.headers;
 
     //getting the request payload
-    const stringDecoder = new StringDecoder('utf-8');
+    const decoder = new StringDecoder('utf-8');
     let buffer = '';
     req.on('data', function(chunk){
-        buffer += stringDecoder.write(chunk);
+        buffer += decoder.write(chunk);
     });
 
     req.on('end', function(){
-        buffer += stringDecoder.end();
+        buffer += decoder.end();
 
-        //send a response
-        res.end("hello from silanka \n");
+        const data = {
+            trimmedPath,
+            method,
+            queryString,
+            reqHeaders,
+        }
 
-        //log the request path
-        console.log('request was recieved with buffer: ', buffer);
+        //checking if route is valid
+        const chosenRoute = typeof router[trimmedPath] !== "undefined" ? router[trimmedPath] : routerSpecific.notFound;
+
+        //route declaration
+        chosenRoute(data, function(statusCode, payload){
+            statusCode = typeof statusCode === "number" ? statusCode : 200;
+            payload = typeof payload === "object" ? payload : {};
+
+            //converting the payload to a string
+            const payloadString = JSON.stringify(payload);
+
+            // sending response
+            res.writeHead(statusCode);
+            res.end(payloadString);
+
+            //logging the request status
+            console.log("response sent successfully!")
+        });
     });
 })
 
 server.listen(process.env.P0RT || port, "localhost", function(){
     console.log("starting up server on port : " + port);
 })
+
