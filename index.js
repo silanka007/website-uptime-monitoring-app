@@ -1,5 +1,6 @@
 const http = require('http');
 const url = require('url');
+const StringDecoder = require('string_decoder').StringDecoder;
 
 const port = 5000;
 
@@ -17,11 +18,25 @@ const server = http.createServer(function(req, res){
     //getting the http query string parameters
     const queryString = parsedUrl.query;
 
-    //send a response
-    res.end("hello from silanka \n");
+    //getting the request headers
+    const reqHeaders = req.headers;
 
-    //log the request path
-    console.log(`the requested path is : ${trimmedPath} with method: ${method} and query string parameter:`, queryString);
+    //getting the request payload
+    const stringDecoder = new StringDecoder('utf-8');
+    let buffer = '';
+    req.on('data', function(chunk){
+        buffer += stringDecoder.write(chunk);
+    });
+
+    req.on('end', function(){
+        buffer += stringDecoder.end();
+
+        //send a response
+        res.end("hello from silanka \n");
+
+        //log the request path
+        console.log('request was recieved with buffer: ', buffer);
+    });
 })
 
 server.listen(process.env.P0RT || port, "localhost", function(){
