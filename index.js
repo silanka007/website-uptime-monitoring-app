@@ -14,11 +14,14 @@ const server = http.createServer(function(req, res){
     //getting the request method
     const method = req.method.toUpperCase();
 
+    //getting the http query string parameters
+    const queryString = parsedUrl.query;
+
     //send a response
     res.end("hello from silanka \n");
 
     //log the request path
-    console.log(`the requested path is : ${trimmedPath} with method: ${method}`);
+    console.log(`the requested path is : ${trimmedPath} with method: ${method} and query string parameter:`, queryString);
 })
 
 server.listen(process.env.P0RT || port, "localhost", function(){
