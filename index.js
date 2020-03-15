@@ -11,11 +11,14 @@ const server = http.createServer(function(req, res){
     const path = parsedUrl.pathname;
     const trimmedPath = path.replace(/^\/+|\/+$/g, '');
 
+    //getting the request method
+    const method = req.method.toUpperCase();
+
     //send a response
     res.end("hello from silanka \n");
 
     //log the request path
-    console.log(`the requested path is : ${trimmedPath}`)
+    console.log(`the requested path is : ${trimmedPath} with method: ${method}`);
 })
 
 server.listen(process.env.P0RT || port, "localhost", function(){
