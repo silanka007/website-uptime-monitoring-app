@@ -1,8 +1,7 @@
 const http = require('http');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
-
-const port = 5000;
+const config = require('./config');
 
 //creating the route
 let handlers = {};
@@ -79,7 +78,6 @@ const server = http.createServer(function(req, res){
     });
 })
 
-server.listen(process.env.P0RT || port, "localhost", function(){
-    console.log("starting up server on port : " + port);
+server.listen(config.port, "localhost", function(){
+    console.log("starting up server on port " + config.port + " on " + config.envName + " mode!");
 })
-
