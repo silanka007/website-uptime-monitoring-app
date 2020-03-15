@@ -5,20 +5,20 @@ const StringDecoder = require('string_decoder').StringDecoder;
 const port = 5000;
 
 //creating the route
-let routerSpecific = {};
+let handlers = {};
 
-routerSpecific.sample = function (data, callback){
+handlers.sample = function (data, callback){
     //responding to the query
     callback(201, {"route": "simple", "author" : "silanka"})
 }
 
-routerSpecific.notFound = function (data, callback){
+handlers.notFound = function (data, callback){
     //404 not found response
     callback(404)
 }
 
 const router = {
-    'sample' : routerSpecific.sample
+    'sample' : handlers.sample
 }
 
 
@@ -56,7 +56,7 @@ const server = http.createServer(function(req, res){
         }
 
         //checking if route is valid
-        const chosenRoute = typeof router[trimmedPath] !== "undefined" ? router[trimmedPath] : routerSpecific.notFound;
+        const chosenRoute = typeof router[trimmedPath] !== "undefined" ? router[trimmedPath] : handlers.notFound;
 
         //route declaration
         chosenRoute(data, function(statusCode, payload){
@@ -67,7 +67,10 @@ const server = http.createServer(function(req, res){
             const payloadString = JSON.stringify(payload);
 
             // sending response
-            res.writeHead(statusCode);
+            res.setHeader("content-Type","application/json" )
+            res.writeHead(statusCode, {
+                // "content-Type" : "application/json"
+            });
             res.end(payloadString);
 
             //logging the request status
