@@ -4,6 +4,17 @@ const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('./config');
 const fs = require('fs');
+const _datalib = require('./lib/data');
+
+_datalib.update("hello", "hi", {"name": "paul silanka"}, function(err){
+
+    _datalib.read("hello", "hi", function(err, data){
+        console.log(data);
+    });
+
+    console.log(err);
+})
+
 
 //creating the route
 let handlers = {};
