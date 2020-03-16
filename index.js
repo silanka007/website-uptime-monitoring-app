@@ -1,14 +1,20 @@
 const http = require('http');
+const https = require('https');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('./config');
+const fs = require('fs');
 
 //creating the route
 let handlers = {};
 
 handlers.sample = function (data, callback){
     //responding to the query
-    callback(201, {"route": "simple", "author" : "silanka"})
+    callback(201, {"route": "sample", "author" : "silanka"})
+}
+
+handlers.ping = function (data, callback){
+    callback(200)
 }
 
 handlers.notFound = function (data, callback){
@@ -17,11 +23,12 @@ handlers.notFound = function (data, callback){
 }
 
 const router = {
-    'sample' : handlers.sample
+    'sample' : handlers.sample,
+    'ping' : handlers.ping,
 }
 
-
-const server = http.createServer(function(req, res){
+//creating a universal logic for both http and https
+const unifiedServer = function (req, res) {
     //parsing the request url
     const parsedUrl = url.parse(req.url, true);
 
@@ -76,8 +83,24 @@ const server = http.createServer(function(req, res){
             console.log("response sent successfully!")
         });
     });
+}
+
+//configuring server for http connections
+http.createServer(function(req, res){
+    //calling the unifiedServer
+    unifiedServer(req, res);
+}).listen(config.httpPort, function(){
+    console.log("starting up server on port " + config.httpPort + " on " + config.envName + " mode!");
 })
 
-server.listen(config.port, "localhost", function(){
-    console.log("starting up server on port " + config.port + " on " + config.envName + " mode!");
+//configuring server for https connections
+const httpsServerOptions = {
+    "key" : fs.readFileSync('./https/key.pem'),
+    "cert" : fs.readFileSync('./https/cert.pem')
+}
+https.createServer(httpsServerOptions, function(req, res){
+    //calling the unifiedServer
+    unifiedServer(req, res);
+}).listen(config.httpsPort, function(){
+    console.log("starting up server on port " + config.httpsPort + " on " + config.envName + " mode!")
 })
