@@ -2,40 +2,15 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
-const config = require('./config');
+const config = require('./lib/config');
 const fs = require('fs');
-const _datalib = require('./lib/data');
+const handlers = require('./lib/handlers');
+const helpers = require('./lib/helpers');
 
-_datalib.update("hello", "hi", {"name": "paul silanka"}, function(err){
-
-    _datalib.read("hello", "hi", function(err, data){
-        console.log(data);
-    });
-
-    console.log(err);
-})
-
-
-//creating the route
-let handlers = {};
-
-handlers.sample = function (data, callback){
-    //responding to the query
-    callback(201, {"route": "sample", "author" : "silanka"})
-}
-
-handlers.ping = function (data, callback){
-    callback(200)
-}
-
-handlers.notFound = function (data, callback){
-    //404 not found response
-    callback(404)
-}
 
 const router = {
-    'sample' : handlers.sample,
     'ping' : handlers.ping,
+    'users' : handlers.users
 }
 
 //creating a universal logic for both http and https
@@ -70,6 +45,7 @@ const unifiedServer = function (req, res) {
             method,
             queryString,
             reqHeaders,
+            payload : helpers.parseJsonToObj(buffer)
         }
 
         //checking if route is valid
@@ -98,7 +74,7 @@ const unifiedServer = function (req, res) {
 
 //configuring server for http connections
 http.createServer(function(req, res){
-    //calling the unifiedServer
+    //calling the unifiedServer function
     unifiedServer(req, res);
 }).listen(config.httpPort, function(){
     console.log("starting up server on port " + config.httpPort + " on " + config.envName + " mode!");
@@ -109,8 +85,9 @@ const httpsServerOptions = {
     "key" : fs.readFileSync('./https/key.pem'),
     "cert" : fs.readFileSync('./https/cert.pem')
 }
+
 https.createServer(httpsServerOptions, function(req, res){
-    //calling the unifiedServer
+    //calling the unifiedServer function
     unifiedServer(req, res);
 }).listen(config.httpsPort, function(){
     console.log("starting up server on port " + config.httpsPort + " on " + config.envName + " mode!")
