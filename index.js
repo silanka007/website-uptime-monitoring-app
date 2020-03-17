@@ -10,9 +10,10 @@ const helpers = require('./lib/helpers');
 
 const router = {
     'ping' : handlers.ping,
-    'users' : handlers.users
+    'users' : handlers.users,
+    'tokens' : handlers.tokens,
 }
-
+ 
 //creating a universal logic for both http and https
 const unifiedServer = function (req, res) {
     //parsing the request url
