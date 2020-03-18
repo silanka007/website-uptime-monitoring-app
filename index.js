@@ -29,7 +29,7 @@ const unifiedServer = function (req, res) {
     const queryString = parsedUrl.query;
 
     //getting the request headers
-    const reqHeaders = req.headers;
+    const headers = req.headers;
 
     //getting the request payload
     const decoder = new StringDecoder('utf-8');
@@ -45,7 +45,7 @@ const unifiedServer = function (req, res) {
             trimmedPath,
             method,
             queryString,
-            reqHeaders,
+            headers,
             payload : helpers.parseJsonToObj(buffer)
         }
 
