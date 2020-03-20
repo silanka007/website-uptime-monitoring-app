@@ -7,7 +7,6 @@ const fs = require('fs');
 const handlers = require('./lib/handlers');
 const helpers = require('./lib/helpers');
 
-
 const router = {
     'ping' : handlers.ping,
     'users' : handlers.users,
